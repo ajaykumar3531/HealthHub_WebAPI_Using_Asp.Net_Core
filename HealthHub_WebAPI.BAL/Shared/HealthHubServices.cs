@@ -30,13 +30,12 @@ namespace HealthHub_WebAPI.BAL.Shared
             services.AddScoped<ITokenManager, TokenGeneration>();
             services.AddScoped<IUserRepo, Authentication_Repos.Contracts.UserRepo>();
             services.AddScoped<IUserRoles, UserRoles>();
-
             #endregion
 
-
-            #region Auth
+            #region Authentication
             services.AddHttpContextAccessor();
             #endregion
+
             return services;
         }
     }
