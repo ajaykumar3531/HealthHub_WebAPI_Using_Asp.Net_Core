@@ -109,5 +109,8 @@ namespace HealthHub_WebAPI.BAL.Authentication_Repos.Services
         }
 
         #endregion
+
+        #region GetAllUserRoles
+        #endregion
     }
 }
