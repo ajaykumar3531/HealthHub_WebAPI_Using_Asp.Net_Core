@@ -4,7 +4,7 @@ using HealthHub_WebAPI.DAL.Generic_Repos;
 using HealthHub_WebAPI.Domain.DTO.Request;
 using HealthHub_WebAPI.Domain.DTO.Response;
 using HealthHub_WebAPI.Domain.DTO.StatusCodes;
-
+using System.Linq;
 namespace HealthHub_WebAPI.BAL.Authentication_Repos.Services
 {
     public class UserRoles : IUserRoles
@@ -111,6 +111,77 @@ namespace HealthHub_WebAPI.BAL.Authentication_Repos.Services
         #endregion
 
         #region GetAllUserRoles
+        /// <summary>
+        /// Retrieves all roles associated with a user asynchronously.
+        /// </summary>
+        /// <param name="userID">The ID of the user.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of all roles associated with the user.</returns>
+        public async Task<List<UserAllRolesResponse>> GetAllRoles(string userID)
+        {
+            List<UserAllRolesResponse> response = new List<UserAllRolesResponse>(); // Initialize the list
+
+            if (string.IsNullOrEmpty(userID))
+            {
+                // If userID is null or empty, return a BadRequest response
+                response.Add(new UserAllRolesResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusMessage = Constants.MSG_REQ_NULL
+                });
+                return response;
+            }
+
+            try
+            {
+                // Retrieve user roles and roles
+                var userRoles = await _userRoleRepo.GetAll();
+                var roles = await _roleRepo.GetAll();
+
+                // Perform a join operation to get roles associated with the user
+                var result = from userRole in userRoles
+                             join role in roles
+                             on userRole.RoleId equals role.RoleId
+                             where userRole.UserId == int.Parse(userID)
+                             select new UserAllRolesResponse
+                             {
+                                 userID = int.Parse(userID),
+                                 RoleID = role.RoleId,
+                                 RoleName = role.RoleName,
+                                 RoleDescription = role.Description,
+                                 StatusCode = StatusCodes.Status200OK,
+                                 StatusMessage = Constants.MSG_DATA_FOUND
+                             };
+
+                // If roles are found, add them to the response list
+                if (result != null && result.Any())
+                {
+                    response.AddRange(result);
+                }
+                else
+                {
+                    // If no roles are found, return a NotFound response
+                    response.Add(new UserAllRolesResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        StatusMessage = Constants.MSG_NO_DATA_FOUND,
+                    });
+                }
+                return response;
+            }
+            catch
+            {
+                throw; // Rethrow the exception if needed
+            }
+            finally
+            {
+                // Ensure to clean up the response list
+                if (response != null)
+                    response = null;
+            }
+        }
         #endregion
+
     }
+
 }
+

@@ -1,10 +1,6 @@
 ﻿using HealthHub_WebAPI.Domain.DTO.Request;
 using HealthHub_WebAPI.Domain.DTO.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace HealthHub_WebAPI.BAL.Authentication_Repos.Contracts
 {
@@ -18,5 +14,11 @@ namespace HealthHub_WebAPI.BAL.Authentication_Repos.Contracts
         /// <returns>A task representing the asynchronous operation. The task result contains the response to the creation operation.</returns>
         Task<UserRoleResponse> CreateUserRole(UserRoleRequest request, string userID);
 
+        /// <summary>
+        /// Retrieves all roles associated with a user asynchronously.
+        /// </summary>
+        /// <param name="userID">The ID of the user.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of all roles associated with the user.</returns>
+        Task<List<UserAllRolesResponse>> GetAllRoles(string userID);
     }
 }

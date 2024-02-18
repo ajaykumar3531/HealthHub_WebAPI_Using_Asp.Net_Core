@@ -79,5 +79,40 @@ namespace HealthHub_WebAPI.Controllers.Authentication
 
         #endregion
 
+        #region GetAllUserRoles
+        /// <summary>
+        /// Retrieves all roles associated with the currently authenticated user.
+        /// </summary>
+        /// <returns>An asynchronous action result representing the operation's status and, if successful, a list of all roles associated with the user.</returns>
+        [Route("GetAllUserRoles")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllUserRoles()
+        {
+            List<UserAllRolesResponse> response = new List<UserAllRolesResponse>(); // Initialize the response list
+            var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Actor).Value; // Retrieve the user ID of the currently authenticated user
+            try
+            {
+                response = await _userRole.GetAllRoles(userID); // Retrieve all roles associated with the user
+                if (response != null)
+                {
+                    // If roles are found, return a 200 OK response with the roles
+                    return Ok(response);
+                }
+                // If no roles are found, return a 400 Bad Request response
+                return BadRequest(response);
+            }
+            catch
+            {
+                throw; // Rethrow the exception if needed
+            }
+            finally
+            {
+                // Ensure to clean up the response list
+                if (response != null)
+                    response = null;
+            }
+        }
+        #endregion
+
     }
 }
