@@ -1,4 +1,4 @@
-# HealthHub
+# HealthHub WebAPI
 
 HealthHub is a comprehensive healthcare management system designed to streamline patient care, facilitate communication between healthcare providers and patients, and improve overall health data management. This project utilizes ASP.NET Core Web API for the backend server and Angular for the frontend user interface.
 
