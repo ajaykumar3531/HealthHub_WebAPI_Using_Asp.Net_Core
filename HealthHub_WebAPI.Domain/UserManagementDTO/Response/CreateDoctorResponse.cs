@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HealthHub_WebAPI.Domain.DTO.Response
+namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response
 {
-    public class UserRoleResponse : StatusDTO,IDisposable
+    public class CreateDoctorResponse : StatusDTO,IDisposable
     {
-        public int RoleId { get; set; }
-        public string RoleName { get; set; }
-        public string RoleDescription { get; set; }
+        public byte[] Id { get; set; } = null!;
+        public string UserName { get; set; } = null!;
+        public short Type { get; set; }
 
-        #region dispose
+        #region Dispose
         private bool disposedValue;
         protected virtual void Dispose(bool disposing)
         {
@@ -31,13 +31,13 @@ namespace HealthHub_WebAPI.Domain.DTO.Response
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~RegUserResponse()
+        // ~CreateDoctorResponse()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);
         // }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);

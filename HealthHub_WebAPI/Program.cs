@@ -1,5 +1,6 @@
 using HealthHub_WebAPI.BAL.Shared;
 using HealthHub_WebAPI.BAL.Shared.JWT_Token;
+using HealthHub_WebAPI.Domain.DTO.Common;
 using HealthHub_WebAPI.Domain.DTO.JWT;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -17,6 +18,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MapperConfig));
 builder.Services.AddHealthHubServices();
 
 ///JWT TokenConfig
