@@ -1,9 +1,11 @@
 ﻿using HealthHub_WebAPI.BAL.User_Managemnt.Contracts;
 using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Request;
 using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HealthHub_WebAPI.Controllers.UserManagement
@@ -11,21 +13,22 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
     /// <summary>
     /// Controller for handling user management operations
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("HealthHub/CreateUsers")]
     [ApiController]
     public class CreateUsers : ControllerBase
     {
         private readonly IUserManagement _UserManagement;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
         #region Constructor
 
         /// <summary>
         /// Constructor for CreateUsers controller
         /// </summary>
         /// <param name="userManagement">User management service</param>
-        public CreateUsers(IUserManagement userManagement)
+        public CreateUsers(IUserManagement userManagement,IHttpContextAccessor httpContextAccessor)
         {
             _UserManagement = userManagement;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -42,9 +45,13 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         public async Task<IActionResult> CreateDoctor(CreateDoctorRequest request)
         {
             CreateDoctorResponse response = new CreateDoctorResponse();
+
+            var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Actor).Value;
+
             try
             {
-                response = await _UserManagement.CreateDoctor(request);
+                response = await _UserManagement.CreateDoctor(request,userID);
+
                 if (response != null && response.StatusCode == StatusCodes.Status200OK)
                 {
                     return Ok(response);
@@ -68,7 +75,6 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
                     response = null;
             }
         }
-
         #endregion
     }
 }

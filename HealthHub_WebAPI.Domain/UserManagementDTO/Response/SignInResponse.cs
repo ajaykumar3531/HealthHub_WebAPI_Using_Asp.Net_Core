@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response
 {
-    public class CreateDoctorResponse : StatusDTO,IDisposable
+    public class SignInResponse : StatusDTO,IDisposable
     {
-        public string Id { get; set; } = null!;
-        public string UserName { get; set; } = null!;
-        public short Type { get; set; }
+        public string UserName { get; set; }
+        public string JWTToken { get; set; }
 
         #region Dispose
         private bool disposedValue;

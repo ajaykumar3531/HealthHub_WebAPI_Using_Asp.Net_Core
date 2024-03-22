@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HealthHub_WebAPI.BAL.Shared.JWT_Token;
 using HealthHub_WebAPI.BAL.User_Managemnt.Contracts;
 using HealthHub_WebAPI.DAL.Generic_Repos;
 using HealthHub_WebAPI.DAL.HelathHub;
@@ -6,36 +7,46 @@ using HealthHub_WebAPI.Domain.DTO.Common;
 using HealthHub_WebAPI.Domain.DTO.StatusCodes;
 using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Request;
 using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response;
-using System;
-using System.Text;
 
 namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
 {
     public class UserManagement : IUserManagement
     {
+        #region Contr
         private readonly IRepository<HelathHubDbContext, User> _userManagement;
         private readonly IRepository<HelathHubDbContext, Address> _address;
         private readonly IRepository<HelathHubDbContext, Role> _role;
-        private readonly IRepository<HelathHubDbContext, Department> _dept;
         private readonly IMapper _mapper;
+        private readonly ITokenManager _tokenGenerate;
 
-        public UserManagement(IRepository<HelathHubDbContext, User> userManagement, IRepository<HelathHubDbContext, Address> address, IRepository<HelathHubDbContext, Role> role, IRepository<HelathHubDbContext, Department> dept, IMapper mapper)
+        public UserManagement(IRepository<HelathHubDbContext, User> userManagement, IRepository<HelathHubDbContext, Address> address, IRepository<HelathHubDbContext, Role> role, IMapper mapper,ITokenManager tokenManager)
         {
             _userManagement = userManagement;
             _address = address;
             _role = role;
-            _dept = dept;
             _mapper = mapper;
+            _tokenGenerate = tokenManager;
         }
+        #endregion
 
-        public async Task<CreateDoctorResponse> CreateDoctor(CreateDoctorRequest request)
+        /// <summary>
+        /// Method to create a new doctor based on the provided request data.
+        /// </summary>
+        /// <param name="request">The request object containing doctor information.</param>
+        /// <param name="SignInUserID">The user ID of the user performing the sign-in.</param>
+        /// <returns>A response object indicating the status of the doctor creation process.</returns>
+        public async Task<CreateDoctorResponse> CreateDoctor(CreateDoctorRequest request, string SignInUserID)
         {
+            // Initialize variables
             User user = null;
             Address address = null;
             Role role = null;
             CreateDoctorResponse response = null;
+
+            // Check if the request is null
             if (request == null)
             {
+                // Set response status for a null request
                 response.StatusMessage = Constants.MSG_REQ_NULL;
                 response.StatusCode = StatusCodes.Status400BadRequest;
                 return response;
@@ -43,50 +54,56 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
 
             try
             {
+                // Check if the user already exists
+                user = (await _userManagement.GetAll(x => x.UserName == request.UserName)).FirstOrDefault();
+
                 if (user == null)
                 {
-                    string userID = await GenerateID();
-                    byte[] idBytes = HexStringToByteArray(userID.Substring(2));
+                    // Generate unique IDs for role, address, and user
+                    byte[] userID = new PFAID().UID;
+                    byte[] addressId = new PFAID().UID;
+                    byte[] roleId = new PFAID().UID;
+                    byte[] signInUserID = new PFAID(SignInUserID).UID;
 
-                    string AddressID = await GenerateID();
-                    byte[] addressIdBytes = HexStringToByteArray(AddressID.Substring(2));
-
-                    string RoleID = await GenerateID();
-                    byte[] roleIdBytes = HexStringToByteArray(RoleID.Substring(2));
-
+                    // Hash the password
                     var PassWordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+                    // Create a new role
                     role = new Role()
                     {
-                        Id = roleIdBytes,
-                        CreatedBy = idBytes,
-                        ModifiedBy = idBytes,
-                        RoleName = "Doctor"
+                        Id = roleId,
+                        CreatedBy = signInUserID,
+                        ModifiedBy = signInUserID,
+                        RoleName = request.Specialty,
                     };
                     _role.Add(role);
 
+                    // Create a new address
                     address = new Address()
                     {
-                        Id = addressIdBytes,
-
+                        Id = addressId,
                     };
                     _mapper.Map(request, address);
                     _address.Add(address);
-          
+
+                    // Create a new user
                     user = new User()
                     {
-                        Id = idBytes,
+                        Id = userID,
                         AddressId = address.Id,
                         RoleId = role.Id
                     };
                     _mapper.Map(request, user);
                     user.Password = PassWordHash;
                     _userManagement.Add(user);
+
+                    // Save changes asynchronously
                     if (await _userManagement.SaveChangesAsync() > 0)
                     {
+                        // Set response for successful creation
                         response = new CreateDoctorResponse()
                         {
-                            Id = user.Id,
+                            Id = new PFAID(user.Id).ToString(),
                             Type = user.Type,
                             UserName = user.UserName,
                             StatusMessage = Constants.MSG_DATA_ADD_SUC,
@@ -95,6 +112,7 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
                     }
                     else
                     {
+                        // Set response for failed creation
                         response.StatusMessage = Constants.MSG_DATA_ADD_FAIL;
                         response.StatusCode = StatusCodes.Status400BadRequest;
                         return response;
@@ -105,40 +123,84 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
             }
             catch (Exception ex)
             {
+                // Throw any exceptions encountered
                 throw ex;
             }
             finally
             {
+                // Clean up resources
                 if (response != null)
                     response = null;
                 user = null;
             }
         }
 
-
-        public async Task<string> GenerateID()
+        /// <summary>
+        /// Method to sign in a user with the provided credentials.
+        /// </summary>
+        /// <param name="request">The request object containing user sign-in credentials.</param>
+        /// <returns>A response object indicating the status of the sign-in process.</returns>
+        public async Task<SignInResponse> SignInUser(SignInRequest request)
         {
-            // Generate a new GUID
-            Guid guid = Guid.NewGuid();
+            // Initialize variables
+            SignInResponse response = new SignInResponse();
+            User UserData = new User();
 
-            // Convert the GUID to a byte array
-            byte[] byteArray = guid.ToByteArray();
-
-            // Format the byte array as a hexadecimal string
-            string userId = "0x" + BitConverter.ToString(byteArray).Replace("-", "").PadRight(32, '0');
-
-            return userId;
-        }
-
-        public static byte[] HexStringToByteArray(string hex)
-        {
-            int length = hex.Length;
-            byte[] bytes = new byte[length / 2];
-            for (int i = 0; i < length; i += 2)
+            try
             {
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+                // Check if the request is null
+                if (request == null)
+                {
+                    response.StatusCode = StatusCodes.Status204NoContent;
+                    response.StatusMessage = Constants.MSG_REQ_NULL;
+                    return response;
+                }
+
+                // Retrieve user data based on username
+                UserData = (await _userManagement.GetAll(x => x.UserName == request.UserName)).FirstOrDefault();
+
+                // Verify password
+                bool isPassword = BCrypt.Net.BCrypt.Verify(request.Password, UserData.Password);
+
+                // Check if user exists and password is correct
+                if (UserData != null && isPassword)
+                {
+                    // Generate JWT token
+                    string JWTToken = await _tokenGenerate.GenerateTokenAsync(request, new PFAID(UserData.Id).ToString());
+
+                    // Check if token generation is successful
+                    if (JWTToken != null)
+                    {
+                        // Set response for successful sign-in
+                        response = new SignInResponse()
+                        {
+                            UserName = UserData.UserName,
+                            JWTToken = JWTToken,
+                            StatusCode = StatusCodes.Status200OK,
+                            StatusMessage = Constants.MSG_LOGIN_SUCC
+                        };
+                    }
+                }
+                else
+                {
+                    // Set response for failed sign-in
+                    response.StatusMessage = Constants.MSG_LOGIN_FAIL;
+                    response.StatusCode = StatusCodes.Status400BadRequest;
+                }
+                return response;
             }
-            return bytes;
+            catch (Exception ex)
+            {
+                // Throw any exceptions encountered
+                throw ex;
+            }
+            finally
+            {
+                // Clean up resources
+                if (response != null)
+                    response = null;
+                UserData = null;
+            }
         }
 
     }

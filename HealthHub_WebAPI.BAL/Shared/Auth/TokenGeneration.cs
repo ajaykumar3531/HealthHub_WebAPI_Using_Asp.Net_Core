@@ -1,4 +1,5 @@
 ﻿using HealthHub_WebAPI.Domain.DTO.JWT;
+using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Request;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -24,34 +25,33 @@ namespace HealthHub_WebAPI.BAL.Shared.JWT_Token
 
         }
 
-        //public Task<string> GenerateTokenAsync(int UserId)
-        //{
-        //    // Create a JwtSecurityTokenHandler
-        //    var tokenHandler = new JwtSecurityTokenHandler();
+        public Task<string> GenerateTokenAsync(SignInRequest request,string UserId)
+        {
+            // Create a JwtSecurityTokenHandler
+            var tokenHandler = new JwtSecurityTokenHandler();
 
-        //    // Create a byte array from the secret key
-        //    var tokenKey = Encoding.ASCII.GetBytes(_key);
+            // Create a byte array from the secret key
+            var tokenKey = Encoding.ASCII.GetBytes(_key);
 
-        //    // Create a SecurityTokenDescriptor that defines the token's properties
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = new ClaimsIdentity(new Claim[]
-        //        {
-        //            //// Add claims such as user's email, first name, and username to the token\
-        //            //new Claim(JwtRegisteredClaimNames.Actort, UserId.ToString()),
-        //            //new Claim(JwtRegisteredClaimNames.UniqueName,request.Email),
-        //            //new Claim(JwtRegisteredClaimNames.Actort, request.Password),
+            // Create a SecurityTokenDescriptor that defines the token's properties
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    // Add claims such as user's email, first name, and username to the token\
+                    new Claim(JwtRegisteredClaimNames.Actort, UserId),
+                    new Claim(JwtRegisteredClaimNames.UniqueName,request.UserName),
+                    new Claim(JwtRegisteredClaimNames.Actort, request.Password),
+                }),
+                Expires = DateTime.UtcNow.AddHours(1), // Token expiration time (1 hour)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256),
+            };
 
-        //        }),
-        //        Expires = DateTime.UtcNow.AddHours(1), // Token expiration time (1 hour)
-        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256),
-        //    };
+            // Create a token based on the descriptor
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        //    // Create a token based on the descriptor
-        //    var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        //    // Return the generated token as a string
-        //    return Task.FromResult(tokenHandler.WriteToken(token));
-        //}
+            // Return the generated token as a string
+            return Task.FromResult(tokenHandler.WriteToken(token));
+        }
     }
 }
