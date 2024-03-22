@@ -7,6 +7,7 @@ using HealthHub_WebAPI.Domain.DTO.Common;
 using HealthHub_WebAPI.Domain.DTO.StatusCodes;
 using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Request;
 using HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response;
+using static HealthHub_WebAPI.Domain.DTO.Common.Enums;
 
 namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
 {
@@ -203,5 +204,57 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
             }
         }
 
+        public async Task<DeleteUserResponse> Deleteuser(DeleteUserRequest request)
+        {
+            User userData = new User();
+            DeleteUserResponse response = new DeleteUserResponse();
+            try
+            {
+                // Check if the request is null
+                if (request == null)
+                {
+                    // Set response status for a null request
+                    response.StatusMessage = Constants.MSG_REQ_NULL;
+                    response.StatusCode = StatusCodes.Status400BadRequest;
+                    return response;
+                }
+
+                userData = (await _userManagement.GetAll(x => x.UserName == request.UserName )).FirstOrDefault();
+
+                bool isPassword = BCrypt.Net.BCrypt.Verify(request.Password,userData.Password);
+
+                if(userData != null && isPassword)
+                {
+                    userData.Status = (int)DeleteStatusEnum.Deleted;
+                    _userManagement.Update(userData);
+                    if (await _userManagement.SaveChangesAsync() > 0)
+                    {
+                        response = new DeleteUserResponse()
+                        {
+                            UserId = new PFAID(userData.Id).ToString(),
+                            UserName = userData.UserName,
+                            StatusMessage = Constants.MSG_DATA_DEL_SUC,
+                            StatusCode = StatusCodes.Status200OK,
+                        };
+                    }
+                }
+                else
+                {
+                    response.StatusMessage = Constants.MSG_DATA_DEL_EXC;
+                    response.StatusCode = StatusCodes.Status400BadRequest;
+                }
+                return response;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (response != null)
+                    response = null;
+                userData = null;
+            }
+        }
     }
 }

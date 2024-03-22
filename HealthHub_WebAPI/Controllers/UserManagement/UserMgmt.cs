@@ -13,9 +13,9 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
     /// <summary>
     /// Controller for handling user management operations
     /// </summary>
-    [Route("HealthHub/CreateUsers")]
+    [Route("HealthHub/UserManagement")]
     [ApiController]
-    public class CreateUsers : ControllerBase
+    public class UserMgmt : ControllerBase
     {
         private readonly IUserManagement _UserManagement;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -25,7 +25,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         /// Constructor for CreateUsers controller
         /// </summary>
         /// <param name="userManagement">User management service</param>
-        public CreateUsers(IUserManagement userManagement,IHttpContextAccessor httpContextAccessor)
+        public UserMgmt(IUserManagement userManagement,IHttpContextAccessor httpContextAccessor)
         {
             _UserManagement = userManagement;
             _httpContextAccessor = httpContextAccessor;
@@ -40,7 +40,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         /// </summary>
         /// <param name="request">Doctor creation request</param>
         /// <returns>Action result containing the result of the operation</returns>
-        [Route("h1/CreateDoctor")]
+        [Route("Hub/CreateDoctor")]
         [HttpPost]
         public async Task<IActionResult> CreateDoctor(CreateDoctorRequest request)
         {
@@ -73,6 +73,38 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
             {
                 if (response != null)
                     response = null;
+            }
+        }
+
+        [Route("Hub/DeleteUser")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(DeleteUserRequest request)
+        {
+            DeleteUserResponse response = new DeleteUserResponse();
+            try
+            {
+                response = await _UserManagement.Deleteuser(request);
+
+                if (response != null && response.StatusCode == StatusCodes.Status200OK)
+                {
+                    return Ok(response);
+                }
+                else if (response != null && !string.IsNullOrEmpty(response.StatusMessage))
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+
+            }
+            catch(Exception ex) {
+                throw ex;
+            }
+            finally
+            {
+
             }
         }
         #endregion

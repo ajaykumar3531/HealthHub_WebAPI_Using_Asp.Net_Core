@@ -39,6 +39,8 @@ public partial class User
 
     public byte[]? RoleId { get; set; }
 
+    public short Status { get; set; }
+
     public virtual Address Address { get; set; } = null!;
 
     public virtual ICollection<Appointment> AppointmentDoctorUsers { get; set; } = new List<Appointment>();

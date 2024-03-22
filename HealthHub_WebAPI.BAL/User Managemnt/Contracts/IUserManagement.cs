@@ -7,5 +7,8 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Contracts
     {
         Task<CreateDoctorResponse> CreateDoctor(CreateDoctorRequest request,string UserID);
         Task<SignInResponse> SignInUser(SignInRequest request);
+        Task<DeleteUserResponse> Deleteuser(DeleteUserRequest request);
+
+
     }
 }

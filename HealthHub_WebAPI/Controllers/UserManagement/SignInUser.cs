@@ -30,7 +30,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         /// </summary>
         /// <param name="request">The sign-in request object.</param>
         /// <returns>An IActionResult representing the result of the sign-in operation.</returns>
-        [Route("h1/SignInUser")]
+        [Route("Hub/SignInUser")]
         [HttpPost]
         public async Task<IActionResult> SignInUsers(SignInRequest request)
         {
