@@ -38,6 +38,8 @@ namespace HealthHub_WebAPI.Domain.DTO.StatusCodes
         public const string MSG_USER_ADD = "User added Successfully";
         public const string MSG_USER_FAIL = "User added failed";
         public const string MSG_REQ_NULL = "The request is null";
+        public const string MSG_APMT_SUCC = "Doctor Appointment Scheduled Successfull";
+        public const string MSG_APMT_FAIL = "Doctor Appointment Not Scheduled";
         #endregion
 
     }

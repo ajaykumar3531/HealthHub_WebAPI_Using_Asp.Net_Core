@@ -1,4 +1,6 @@
-﻿using HealthHub_WebAPI.BAL.Shared.JWT_Token;
+﻿using HealthHub_WebAPI.BAL.DoctorsMgmt.Contracts;
+using HealthHub_WebAPI.BAL.DoctorsMgmt.Services;
+using HealthHub_WebAPI.BAL.Shared.JWT_Token;
 using HealthHub_WebAPI.BAL.User_Managemnt.Contracts;
 using HealthHub_WebAPI.BAL.User_Managemnt.Services;
 using HealthHub_WebAPI.DAL.Generic_Repos;
@@ -32,6 +34,7 @@ namespace HealthHub_WebAPI.BAL.Shared
             #region BusinessRepos
             services.AddScoped<ITokenManager, TokenGeneration>();
             services.AddScoped<IUserManagement,UserManagement>();
+            services.AddScoped<IDoctorMgmnt, DoctorMgmnt>();
             #endregion
 
             #region Authentication

@@ -10,7 +10,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
     /// </summary>
     [Route("HealthHub/SignInUsers")]
     [ApiController]
-    public class SignInUserController : ControllerBase
+    public class SignInUser : ControllerBase
     {
         private readonly IUserManagement _userManagement;
 
@@ -18,7 +18,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         /// Constructor for SignInUserController.
         /// </summary>
         /// <param name="userManagement">The user management service.</param>
-        public SignInUserController(IUserManagement userManagement)
+        public SignInUser(IUserManagement userManagement)
         {
             _userManagement = userManagement;
         }

@@ -28,9 +28,4 @@
     <ProjectReference Include="..\HealthHub_WebAPI.Domain\HealthHub_WebAPI.Domain.DTO.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DoctorsMgmt\Contracts\" />
-    <Folder Include="DoctorsMgmt\Services\" />
-  </ItemGroup>
-
 </Project>
