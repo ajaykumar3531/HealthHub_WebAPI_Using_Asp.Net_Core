@@ -12,5 +12,6 @@ namespace HealthHub_WebAPI.BAL.DoctorsMgmt.Contracts
     {
         Task<CreateApmtResponse> CreateAppoitment(CreateApmtRequest request,string UserID);
         Task<DoctorApmts> GetDoctorApmts(string DoctorUserID);
+
     }
 }
