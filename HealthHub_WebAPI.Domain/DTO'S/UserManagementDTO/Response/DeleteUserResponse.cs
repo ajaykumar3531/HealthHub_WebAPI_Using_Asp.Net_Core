@@ -13,3 +13,4 @@ namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response
         public string UserName { get; set;}
     }
 }
+

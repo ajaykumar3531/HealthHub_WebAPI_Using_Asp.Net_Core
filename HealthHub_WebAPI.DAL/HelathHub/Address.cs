@@ -21,6 +21,7 @@ public partial class Address
 
     public string LandMark { get; set; } = null!;
 
+
     public string Address1 { get; set; } = null!;
 
     public string Address2 { get; set; } = null!;

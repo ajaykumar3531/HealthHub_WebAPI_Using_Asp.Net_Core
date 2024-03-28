@@ -44,3 +44,4 @@ namespace HealthHub_WebAPI.Domain.DTO.StatusCodes
 
     }
 }
+

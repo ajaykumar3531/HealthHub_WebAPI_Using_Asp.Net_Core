@@ -20,7 +20,7 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
         private readonly IMapper _mapper;
         private readonly ITokenManager _tokenGenerate;
 
-        public UserManagement(IRepository<HelathHubDbContext, User> userManagement, IRepository<HelathHubDbContext, Address> address, IRepository<HelathHubDbContext, Role> role, IMapper mapper,ITokenManager tokenManager)
+        public UserManagement(IRepository<HelathHubDbContext, User> userManagement, IRepository<HelathHubDbContext, Address> address, IRepository<HelathHubDbContext, Role> role, IMapper mapper, ITokenManager tokenManager)
         {
             _userManagement = userManagement;
             _address = address;
@@ -36,9 +36,10 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
         /// <param name="request">The request object containing doctor information.</param>
         /// <param name="SignInUserID">The user ID of the user performing the sign-in.</param>
         /// <returns>A response object indicating the status of the doctor creation process.</returns>
-        public async Task<CreateDoctorResponse> CreateDoctor(CreateDoctorRequest request, string SignInUserID)
+        public async Task<CreateDoctorResponse> CreateUser(CreateDoctorRequest request, string SignInUserID)
         {
             // Initialize variables
+
             User user = null;
             Address address = null;
             Role role = null;
@@ -92,7 +93,8 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
                     {
                         Id = userID,
                         AddressId = address.Id,
-                        RoleId = role.Id
+                        RoleId = role.Id,
+                        ParentUserId = (request.Type == (short)TypeEnum.Doctor || request.Type == (short)TypeEnum.Management) ? signInUserID : null,
                     };
                     _mapper.Map(request, user);
                     user.Password = PassWordHash;
@@ -127,6 +129,7 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
                 // Throw any exceptions encountered
                 throw ex;
             }
+
             finally
             {
                 // Clean up resources
@@ -219,11 +222,11 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
                     return response;
                 }
 
-                userData = (await _userManagement.GetAll(x => x.UserName == request.UserName )).FirstOrDefault();
+                userData = (await _userManagement.GetAll(x => x.UserName == request.UserName)).FirstOrDefault();
 
-                bool isPassword = BCrypt.Net.BCrypt.Verify(request.Password,userData.Password);
+                bool isPassword = BCrypt.Net.BCrypt.Verify(request.Password, userData.Password);
 
-                if(userData != null && isPassword)
+                if (userData != null && isPassword)
                 {
                     userData.Status = (int)DeleteStatusEnum.Deleted;
                     _userManagement.Update(userData);
@@ -245,7 +248,7 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Services
                 }
                 return response;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

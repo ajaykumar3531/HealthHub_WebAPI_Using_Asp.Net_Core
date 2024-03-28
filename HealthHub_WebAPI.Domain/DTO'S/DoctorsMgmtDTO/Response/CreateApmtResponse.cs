@@ -18,11 +18,13 @@ namespace HealthHub_WebAPI.Domain.DTO.DoctorsMgmtDTO.Response
         public List<DoctorDetails> DoctorDetails = new List<DoctorDetails>();
     }
 
+
     public class DoctorDetails : StatusDTO
     {
         public string DoctorID { get; set; }
         public string PatientID { get; set; }   
         public Int16 StartTime { get; set; }
         public Int16 EndTime { get; set; }
+        public DateTime Date { get; set; }
     }
 }

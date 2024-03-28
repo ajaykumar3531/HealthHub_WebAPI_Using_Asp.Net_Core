@@ -26,6 +26,7 @@ namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Request
 
         public string PhoneNumber { get; set; } = null!;
 
+
         public string? Specialty { get; set; }
 
         public string Country { get; set; } = null!;

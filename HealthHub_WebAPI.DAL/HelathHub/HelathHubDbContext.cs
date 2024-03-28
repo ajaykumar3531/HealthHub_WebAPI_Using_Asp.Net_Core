@@ -19,6 +19,8 @@ public partial class HelathHubDbContext : DbContext
 
     public virtual DbSet<Appointment> Appointments { get; set; }
 
+    public virtual DbSet<BillingAndPayment> BillingAndPayments { get; set; }
+
     public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -85,6 +87,51 @@ public partial class HelathHubDbContext : DbContext
                 .HasForeignKey(d => d.PatientUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Appointme__Patie__33D4B598");
+        });
+
+        modelBuilder.Entity<BillingAndPayment>(entity =>
+        {
+            entity.HasKey(e => e.BillId).HasName("PK__BillingA__11F2FC4A7E84851B");
+
+            entity.Property(e => e.BillId)
+                .HasMaxLength(18)
+                .IsFixedLength()
+                .HasColumnName("BillID");
+            entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Balance).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(18)
+                .IsFixedLength();
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.DiscountsOrAdjustments).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.InsuranceClaimId).HasColumnName("InsuranceClaimID");
+            entity.Property(e => e.InvoiceNumber).IsUnicode(false);
+            entity.Property(e => e.Notes).IsUnicode(false);
+            entity.Property(e => e.PatientId)
+                .HasMaxLength(18)
+                .IsFixedLength()
+                .HasColumnName("PatientID");
+            entity.Property(e => e.PaymentGatewayTransactionId)
+                .IsUnicode(false)
+                .HasColumnName("PaymentGatewayTransactionID");
+            entity.Property(e => e.PaymentMethod).IsUnicode(false);
+            entity.Property(e => e.PaymentStatus).IsUnicode(false);
+            entity.Property(e => e.ProviderId)
+                .HasMaxLength(18)
+                .IsFixedLength()
+                .HasColumnName("ProviderID");
+            entity.Property(e => e.ServiceDescription).IsUnicode(false);
+            entity.Property(e => e.Status).IsUnicode(false);
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedBy)
+                .HasMaxLength(18)
+                .IsFixedLength();
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.BillingAndPayments)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__BillingAn__Patie__5DCAEF64");
         });
 
         modelBuilder.Entity<Department>(entity =>

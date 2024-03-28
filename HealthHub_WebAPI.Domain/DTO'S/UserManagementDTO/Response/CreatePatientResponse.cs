@@ -11,5 +11,6 @@ namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response
         public byte[] Id { get; set; } = null!;
         public string UserName { get; set; } = null!;
         public short Type { get; set; }
+
     }
 }

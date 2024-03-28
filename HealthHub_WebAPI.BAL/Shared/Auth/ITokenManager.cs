@@ -10,5 +10,6 @@ namespace HealthHub_WebAPI.BAL.Shared.JWT_Token
     public interface ITokenManager
     {
         Task<string> GenerateTokenAsync(SignInRequest request,string userId);
+
     }
 }

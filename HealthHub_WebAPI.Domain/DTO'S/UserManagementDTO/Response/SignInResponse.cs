@@ -12,6 +12,7 @@ namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Response
         public string UserName { get; set; }
         public string JWTToken { get; set; }
 
+
         #region Dispose
         private bool disposedValue;
         protected virtual void Dispose(bool disposing)

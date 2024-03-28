@@ -5,7 +5,10 @@ using HealthHub_WebAPI.DAL.HelathHub;
 using HealthHub_WebAPI.Domain.DTO.Common;
 using HealthHub_WebAPI.Domain.DTO.DoctorsMgmtDTO.Request;
 using HealthHub_WebAPI.Domain.DTO.DoctorsMgmtDTO.Response;
+using HealthHub_WebAPI.Domain.DTO.DTO_S.DoctorsMgmtDTO.Response;
+using HealthHub_WebAPI.Domain.DTO.DTO_S.UserManagementDTO.Response;
 using HealthHub_WebAPI.Domain.DTO.StatusCodes;
+using static HealthHub_WebAPI.Domain.DTO.Common.Enums;
 
 namespace HealthHub_WebAPI.BAL.DoctorsMgmt.Services
 {
@@ -22,50 +25,53 @@ namespace HealthHub_WebAPI.BAL.DoctorsMgmt.Services
             _user = user;
         }
 
-        public async Task<CreateApmtResponse> CreateAppoitment(CreateApmtRequest request, string UserID)
+        public async Task<DoctorsResponse> GetDoctors()
         {
-            CreateApmtResponse response = new CreateApmtResponse();
-            Appointment newAppointment = new Appointment();
-            User doctorData = new User();
+            List<User> users = new List<User>();
+
+            DoctorsResponse response = new DoctorsResponse();
+
             try
             {
-                if (request == null && UserID == null)
-                {
-                    response.StatusMessage = Constants.MSG_REQ_NULL;
-                    response.StatusCode = StatusCodes.Status400BadRequest;
-                    return response;
-                }
-                byte[] AppoimentID = new PFAID().UID;
-                newAppointment = new Appointment()
-                {
-                    AppointmentId = AppoimentID,
-                    Date = request.Date,
-                    DoctorUserId = new PFAID(request.DoctorUserID).UID,
-                    PatientUserId = new PFAID(UserID).UID,
-                    Description = request.Description,
-                    EndTime = request.EndTime,
-                    StartTime = request.StartTime,
-                    AppointmentType = request.AppointmentType,
-                };
-                _appointment.Add(newAppointment);
-                if (await _appointment.SaveChangesAsync() > 0)
-                {
-                    doctorData = (await _user.GetAll(x => x.Id == new PFAID(newAppointment.DoctorUserId).UID)).FirstOrDefault();
+                users = (await _user.GetAll(x => x.Type == (short)TypeEnum.Doctor && x.Status == (short)DeleteStatusEnum.NotDeleted)).ToList();
 
-                    response = new CreateApmtResponse()
+                if (users.Any() && users != null)
+                {
+                    var Doctors = (from user in users
+                                   select new Doctor
+                                   {
+                                       UserName = user.UserName,
+                                       Type = user.Type,
+                                       Dob = user.Dob,
+                                       FirstName = user.FirstName,
+                                       LastName = user.LastName,
+                                       MiddleName = user.MiddleName,
+                                       Gender = user.Gender,
+                                       PhoneNumber = user.PhoneNumber,
+                                       Specialty = user.Specialty,
+                                   }).ToList();
+
+                    if (Doctors.Any() && Doctors != null)
                     {
-                        DoctorUserID = new PFAID(newAppointment.DoctorUserId).ToString(),
-                        DoctorName = doctorData.FirstName + " " + doctorData.MiddleName + " " + doctorData.LastName,
-                        StatusCode = StatusCodes.Status200OK,
-                        StatusMessage = Constants.MSG_APMT_SUCC
-                    };
+                        response.Doctors.AddRange(Doctors);
+                        response.StatusMessage = Constants.MSG_DATA_LOAD_SUC;
+                        response.StatusCode = StatusCodes.Status200OK;
+                    }
+                    else
+                    {
+                        response.StatusMessage = Constants.MSG_DATA_LOAD_FAIL;
+                        response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
                 }
+
                 else
                 {
+                    response.StatusMessage = Constants.MSG_DATA_LOAD_FAIL;
                     response.StatusCode = StatusCodes.Status400BadRequest;
-                    response.StatusMessage = Constants.MSG_APMT_FAIL;
                 }
+
                 return response;
+
             }
             catch (Exception ex)
             {
@@ -75,16 +81,16 @@ namespace HealthHub_WebAPI.BAL.DoctorsMgmt.Services
             {
                 if (response != null)
                     response = null;
-                newAppointment = null;
-                doctorData = null;
+                users = null;
             }
         }
 
-        public async Task<DoctorApmts> GetDoctorApmts(string DoctorUserID)
+
+        public async Task<DoctorsPatientResponse> GetDoctorsPatient(string DoctorUserID)
         {
-            DoctorApmts response = new DoctorApmts();
-            List<Appointment> appointment = new List<Appointment>();
-            List<DoctorDetails> doctorDetails = new List<DoctorDetails>();
+            DoctorsPatientResponse response = new DoctorsPatientResponse();
+            List<User> patients = new List<User>();
+            List<Appointment> appointments = new List<Appointment>();
             try
             {
                 if (DoctorUserID == null)
@@ -93,39 +99,47 @@ namespace HealthHub_WebAPI.BAL.DoctorsMgmt.Services
                     response.StatusCode = StatusCodes.Status400BadRequest;
                     return response;
                 }
-                appointment = (await _appointment.GetAll(x => x.DoctorUserId == new PFAID(DoctorUserID).UID)).ToList();
 
-                if (appointment.Any() && appointment != null)
+                patients = (await _user.GetAll(x => x.Type == (short)TypeEnum.Patient && x.Status == (short)DeleteStatusEnum.NotDeleted)).ToList();
+                appointments = (await _appointment.GetAll(x=>x.DoctorUserId == new PFAID(DoctorUserID).UID)).ToList();
+
+                if (patients.Any() && patients != null && appointments.Any() && appointments != null)
                 {
-                    doctorDetails = (from data in appointment
-                                              select new DoctorDetails
-                                              {
-                                                  DoctorID = new PFAID(data.DoctorUserId).ToString(),
-                                                  PatientID = new PFAID(data.PatientUserId).ToString(),
-                                                  StartTime = data.StartTime,
-                                                  EndTime = data.EndTime,
-                                                  StatusCode = StatusCodes.Status200OK,
-                                                  StatusMessage = Constants.MSG_DATA_LOAD_SUC
+                    var result = (from apmt in appointments
+                                  join patinet in patients on
+                                  apmt.PatientUserId equals patinet.Id
+                                  select new DoctorsPatient
+                                  {
+                                      Dob = patinet.Dob,
+                                      FirstName = patinet.FirstName,
+                                      LastName = patinet.LastName,
+                                      Gender = patinet.Gender,
+                                      MiddleName = patinet.MiddleName,
+                                      PhoneNumber = patinet.PhoneNumber,
+                                      Type = patinet.Type,
+                                      UserName = patinet.UserName,
+                                  }).ToList();
 
-                                              }).ToList();
-
-
-                    if (doctorDetails != null && doctorDetails.Any())
+                    if (result.Any() && result != null)
                     {
-                        response.DoctorDetails.AddRange(doctorDetails);
-                        response.StatusCode = StatusCodes.Status200OK;
+                        response.Patients.AddRange(result);
                         response.StatusMessage = Constants.MSG_DATA_LOAD_SUC;
+                        response.StatusCode = StatusCodes.Status200OK;
+                    }
+                    else
+                    {
+                        response.StatusMessage = Constants.MSG_DATA_LOAD_FAIL;
+                        response.StatusCode = StatusCodes.Status400BadRequest;
                     }
                 }
                 else
                 {
-                    response.DoctorDetails.Add(new DoctorDetails
-                    {
-                        StatusCode = StatusCodes.Status400BadRequest,
-                        StatusMessage = Constants.MSG_DATA_LOAD_FAIL
-                    });
+                    response.StatusMessage = Constants.MSG_DATA_LOAD_FAIL;
+                    response.StatusCode = StatusCodes.Status400BadRequest;
                 }
+
                 return response;
+
             }
             catch (Exception ex)
             {
@@ -133,7 +147,10 @@ namespace HealthHub_WebAPI.BAL.DoctorsMgmt.Services
             }
             finally
             {
-
+                if (response != null)
+                    response = null;
+                appointments = null;
+                patients = null;
             }
         }
     }

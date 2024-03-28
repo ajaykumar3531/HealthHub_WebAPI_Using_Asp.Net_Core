@@ -18,6 +18,7 @@ namespace HealthHub_WebAPI.BAL.Shared
         {
             if (!context.ModelState.IsValid)
             {
+
                 context.Result = new BadRequestObjectResult(context.ModelState);
             }
             base.OnResultExecuting(context);

@@ -36,6 +36,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         {
             SignInResponse response = new SignInResponse();
 
+
             try
             {
                 // Call user management service to sign in the user

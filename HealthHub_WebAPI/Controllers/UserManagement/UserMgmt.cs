@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace HealthHub_WebAPI.Controllers.UserManagement
 {
+
     /// <summary>
     /// Controller for handling user management operations
     /// </summary>
@@ -40,9 +41,9 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
         /// </summary>
         /// <param name="request">Doctor creation request</param>
         /// <returns>Action result containing the result of the operation</returns>
-        [Route("Hub/CreateDoctor")]
+        [Route("Hub/CreateUser")]
         [HttpPost]
-        public async Task<IActionResult> CreateDoctor(CreateDoctorRequest request)
+        public async Task<IActionResult> CreateUser(CreateDoctorRequest request)
         {
             CreateDoctorResponse response = new CreateDoctorResponse();
 
@@ -50,7 +51,7 @@ namespace HealthHub_WebAPI.Controllers.UserManagement
 
             try
             {
-                response = await _UserManagement.CreateDoctor(request,userID);
+                response = await _UserManagement.CreateUser(request,userID);
 
                 if (response != null && response.StatusCode == StatusCodes.Status200OK)
                 {

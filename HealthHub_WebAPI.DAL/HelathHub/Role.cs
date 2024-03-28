@@ -13,6 +13,7 @@ public partial class Role
 
     public byte[] ModifiedBy { get; set; } = null!;
 
+
     public DateTime CreatedDate { get; set; }
 
     public DateTime ModifiedDate { get; set; }

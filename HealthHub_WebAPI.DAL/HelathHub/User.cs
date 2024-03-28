@@ -47,5 +47,8 @@ public partial class User
 
     public virtual ICollection<Appointment> AppointmentPatientUsers { get; set; } = new List<Appointment>();
 
+    public virtual ICollection<BillingAndPayment> BillingAndPayments { get; set; } = new List<BillingAndPayment>();
+
+
     public virtual Role? Role { get; set; }
 }

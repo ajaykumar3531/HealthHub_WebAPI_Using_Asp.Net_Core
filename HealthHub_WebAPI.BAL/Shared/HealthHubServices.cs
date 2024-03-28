@@ -17,6 +17,7 @@ namespace HealthHub_WebAPI.BAL.Shared
 {
     public static class HealthHubServices
     {
+
         public static IServiceCollection AddHealthHubServices(this IServiceCollection services)
         {
             #region Db_Context
@@ -35,6 +36,7 @@ namespace HealthHub_WebAPI.BAL.Shared
             services.AddScoped<ITokenManager, TokenGeneration>();
             services.AddScoped<IUserManagement,UserManagement>();
             services.AddScoped<IDoctorMgmnt, DoctorMgmnt>();
+            services.AddScoped<IApmtService, ApmtService>();    
             #endregion
 
             #region Authentication

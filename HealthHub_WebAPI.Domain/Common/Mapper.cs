@@ -18,5 +18,6 @@ namespace HealthHub_WebAPI.Domain.DTO.Common
             CreateMap<Address, CreateDoctorRequest>().ReverseMap();
             CreateMap<Role, CreateDoctorRequest>().ReverseMap();
         }
+
     }
 }

@@ -14,6 +14,7 @@ namespace HealthHub_WebAPI.Domain.DTO.Common
         {
             UID = GenerateUUID();
         }
+
         public PFAID(byte[] ID)
         {
             UID = ID;

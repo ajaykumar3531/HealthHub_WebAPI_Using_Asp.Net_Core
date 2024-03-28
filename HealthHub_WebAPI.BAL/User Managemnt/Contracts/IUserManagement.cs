@@ -5,9 +5,9 @@ namespace HealthHub_WebAPI.BAL.User_Managemnt.Contracts
 {
     public interface IUserManagement
     {
-        Task<CreateDoctorResponse> CreateDoctor(CreateDoctorRequest request,string UserID);
+        Task<CreateDoctorResponse> CreateUser(CreateDoctorRequest request,string UserID);
         Task<SignInResponse> SignInUser(SignInRequest request);
         Task<DeleteUserResponse> Deleteuser(DeleteUserRequest request);
-
     }
+
 }

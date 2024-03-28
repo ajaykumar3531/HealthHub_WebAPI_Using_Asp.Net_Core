@@ -16,6 +16,7 @@ namespace HealthHub_WebAPI.BAL.Shared.JWT_Token
         private readonly string _key;
         private readonly byte[] _secret;
         private readonly JwtTokenConfig _jwtTokenConfig;
+
         public TokenGeneration(JwtTokenConfig jwtTokenConfig)
         {
             // Initialize private fields with provided values

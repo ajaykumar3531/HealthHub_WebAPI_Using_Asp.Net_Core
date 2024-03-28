@@ -14,6 +14,7 @@ namespace HealthHub_WebAPI.Domain.DTO.UserManagementDTO.Request
 
         public string UserName { get; set; } = null!;
 
+
         public string Password { get; set; } = null!;
 
         public string FirstName { get; set; } = null!;

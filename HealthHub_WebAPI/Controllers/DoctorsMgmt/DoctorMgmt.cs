@@ -1,6 +1,8 @@
 ﻿using HealthHub_WebAPI.BAL.DoctorsMgmt.Contracts;
 using HealthHub_WebAPI.Domain.DTO.DoctorsMgmtDTO.Request;
 using HealthHub_WebAPI.Domain.DTO.DoctorsMgmtDTO.Response;
+using HealthHub_WebAPI.Domain.DTO.DTO_S.DoctorsMgmtDTO.Response;
+using HealthHub_WebAPI.Domain.DTO.DTO_S.UserManagementDTO.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -20,15 +22,15 @@ namespace HealthHub_WebAPI.Controllers.DoctorsMgmt
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [Route("Hub/CreateAppointment")]
-        [HttpPost]
-        public async Task<IActionResult> CreateAppointment(CreateApmtRequest request)
+        [Route("Hub/GetDoctors")]
+        [HttpGet]
+        public async Task<IActionResult> GetDoctors()
         {
-            CreateApmtResponse response = new CreateApmtResponse();
-            string UserID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Actor).Value;
+            DoctorsResponse response = new DoctorsResponse();
+
             try
             {
-                response = await _doctorMgmnt.CreateAppoitment(request, UserID);
+                response = await _doctorMgmnt.GetDoctors();
 
                 if (response != null && response.StatusCode == StatusCodes.Status200OK)
                 {
@@ -42,6 +44,7 @@ namespace HealthHub_WebAPI.Controllers.DoctorsMgmt
                 {
                     return BadRequest(response);
                 }
+
             }
             catch (Exception ex)
             {
@@ -54,37 +57,40 @@ namespace HealthHub_WebAPI.Controllers.DoctorsMgmt
             }
         }
 
-        [Route("Hub/GetDoctorApmts")]
+
+        [Route("Hub/GetDoctorsPatient")]
         [HttpGet]
-        public async Task<IActionResult> GetDoctorApmts(string DoctorUserID)
+        public async Task<IActionResult> GetDoctorsPatient()
         {
-            DoctorApmts response = new DoctorApmts();
+            DoctorsPatientResponse response = new DoctorsPatientResponse(); 
+
+            var UserID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Actor).Value;
 
             try
             {
-                response = await _doctorMgmnt.GetDoctorApmts(DoctorUserID);
+                response = await _doctorMgmnt.GetDoctorsPatient(UserID);
 
                 if (response != null && response.StatusCode == StatusCodes.Status200OK)
                 {
-                    return Ok(response.DoctorDetails);
+                    return Ok(response);
                 }
                 else if (response != null && !string.IsNullOrEmpty(response.StatusMessage))
                 {
-                    return Ok(response.DoctorDetails);
+                    return Ok(response);
                 }
                 else
                 {
-                    return BadRequest(response.DoctorDetails);
+                    return BadRequest(response);
                 }
 
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 throw ex;
             }
             finally
             {
-
+                if(response != null) response = null;
             }
         }
     }

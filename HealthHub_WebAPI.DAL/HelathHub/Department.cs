@@ -11,5 +11,6 @@ public partial class Department
 
     public byte[] CreatedBy { get; set; } = null!;
 
+
     public DateTime CreatedDate { get; set; }
 }

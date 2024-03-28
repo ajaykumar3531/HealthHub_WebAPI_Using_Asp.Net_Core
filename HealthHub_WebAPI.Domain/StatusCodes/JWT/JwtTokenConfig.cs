@@ -17,6 +17,7 @@ namespace HealthHub_WebAPI.Domain.DTO.JWT
         // The audience for which the token is intended.
         public string Audience { get; set; }
 
+
         // The expiration time (in minutes) for access tokens.
         public int AccessTokenExpiration { get; set; }
 
