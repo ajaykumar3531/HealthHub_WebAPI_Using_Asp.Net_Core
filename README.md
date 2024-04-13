@@ -15,7 +15,6 @@ HealthHub is a comprehensive healthcare management system designed to streamline
 ## Technologies Used
 
 - **Backend**: ASP.NET Core Web API, C#
-- **Frontend**: Angular, TypeScript, HTML, CSS
 - **Database**: SQL Server
 - **Authentication**: JWT (JSON Web Tokens)
 - **Messaging**: SignalR
